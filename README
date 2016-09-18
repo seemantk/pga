@@ -1,0 +1,9 @@
+Wed Mar 12 17:14:43 EST 1997
+
+This directory implements my GA notions
+and applies it to the baby problem of 
+locating the bit string of length N
+with the greatest number of 1's.
+
+Note the "params" mechanism.
+Read and understand the makefile.

@@ -1,0 +1,31 @@
+	print_the_params 1
+
+	print_every_fitness 0
+	print_every_fitness 1
+
+	print_every_hero 1
+
+	debug 0
+	debug 1
+
+	MUT_RATE 0.06
+	MUT_RATE 0.006
+	MUT_RATE 0.002
+
+	one_point 0
+	uniform 1
+	two_point 0
+	totally_random 0
+
+	POP_SIZE 100
+	POP_SIZE 500
+
+	LOOPS 100000
+
+	tournament_size 2
+	problem_number	2	# should be 1, 2, or 3
+
+	N 30	#	Easy problem
+	N 300	#	Hard problem
+	N 400	#	Hard problem
+	N 100

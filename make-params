@@ -1,0 +1,106 @@
+#!/bin/sh
+
+# make-params
+
+# Input is the file "defaultparams"
+# Output are files "params.c" and "params.h"
+# Intermediate files are "params.1" thru "params.4"
+#		params.1: declaration and initial values for the parameters
+#		params.2: declares, entry, file manipulation, params file reading
+#		params.3: identify parameters' names and initialize them
+#		params.4: code to echo the parameters after all are set.
+
+cat /dev/null > params.3
+
+cat	> params.2 << EOF
+
+#include	<string.h>
+#include	<ctype.h>
+#include	<stdio.h>
+
+#define	_int_	"%d"
+#define	_float_	"%f"
+#define	_double_	"%lf"
+#define	_string_	"%s"
+
+#define fig(N,M,T) if(strcmp(key,N)==0)  \\
+	{ sscanf(strtok(NULL," \t\n"),T,M);} else
+
+params( argc, argv ) int argc; char * argv[];
+{ FILE * fp; char line[128], * key;
+EOF
+
+cat	> params.4 << EOF
+	/* Conditionally print the parameter values. after they are set. */
+	if( ! print_the_params ) return;
+EOF
+
+# Process defaultparams information. --------------------------------
+if [ -f params.d ]
+then
+cat params.d | awk '
+BEGIN	{
+		format["int"] = "d"; format["float"] = "f"; 
+		format["string"] = "s"; format["double"] = "f"; 
+		print "/* This is the file params.c */" > "params.1" ;
+		print "/* This is the file params.h */" > "params.h" ;
+		}
+
+NF==0	{ next }
+
+$1~/^#/	{ next }
+
+/%/	{
+		type = substr( $1, 2 ); len = $2; ty = "_" type "_"
+		print "printf( \"%" $1 " " $2 "\\n\" );" >> "params.4"
+		next 
+		}
+
+	{ if( type == "string" )
+		{
+		print "char	" $1 "[" len "]	= \"" $2 "\";" >> "params.1" ;
+		print "		fig(\"" $1 "\"," $1 "," ty ")" >> "params.3" 
+	  	print "extern char	" $1 "[" len "];" >> "params.h"
+		}
+	  else
+		{
+		print type "	" $1 "	= " $2 ";" >>"params.1" ;
+		print "		fig(\"" $1 "\",&" $1 "," ty ")" >> "params.3" 
+		print "extern " type "	" $1 ";" >> "params.h" ;
+		}
+	}
+	{
+	print "printf( \"   " $1 "   %" format[type] "\\n\", " $1 ");" >> "params.4"
+	}
+'
+#-----------------------------------------------------------------
+cat	>> params.2 << EOF
+
+if( argc < 2 ) { fp = fopen("params", "r"); }
+else { fp = fopen( argv[1], "r" ); }
+if( fp == NULL ) { printf("No params file??\n"); return; }
+
+while( fgets( line, 128, fp ) ) { /* read a line from the file "params" */
+	key = strtok( line, " \t" );
+	if( '%' == key[0] ) printf( "%s\n", line ); /* comments */
+	else if( isalpha( key[0] ) ) { 
+		if( strcmp( key, "EXIT" )==0 ) break; /* quit processing params */
+
+EOF
+#-----------------------------------------------------------------
+cat >> params.3 << EOF
+
+	printf("Unknown key-word: %s\n", line);
+} /* end if */ } /* end while */
+
+EOF
+
+cat >> params.4 << EOF
+} /* end params */
+EOF
+#-----------------------------------------------------------------
+cat	params.[1234] > params.c; \rm params.[1234]
+
+else
+	echo Change defaultparams to params.d
+fi
