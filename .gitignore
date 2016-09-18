@@ -1,0 +1,4 @@
+params.c
+params.h
+*.o
+ga
