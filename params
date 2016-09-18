@@ -23,9 +23,9 @@
 	LOOPS 100000
 
 	tournament_size 2
-	problem_number	2	# should be 1, 2, or 3
+	problem_number	1	# should be 1, 2, or 3
 
 	N 30	#	Easy problem
 	N 300	#	Hard problem
-	N 400	#	Hard problem
 	N 100
+	N 400	#	Hard problem
