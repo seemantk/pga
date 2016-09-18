@@ -2,33 +2,49 @@
 ** Local Variables
 */
 var POP_SIZE = 500
-  , MUT_RATE = 0.02
   , MAX_HERO = 100
-  , population = []
+  , MUT_RATE = .02
   , fitness = new Array(POP_SIZE)
   , individual_length = 100
-  , iterations = 10000
-  , evaluations = 0
   , tournament_size = 2
+  , evaluations = 0
+  , iterations = 10000
+  , population = []
+  , problem = 1
   , hero = 0
   , i, j
 ;
-
+var margin = { top: 5, right: 15, bottom: 5, left: 15 }
+  , width = 960 - margin.left - margin.right
+  , height = 500 - margin.top - margin.bottom
+;
+var svg = d3.select("#viz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
+;
 // initialize
 for(i = 0; i < POP_SIZE; i++) {
-    var p = [];
     for(j = 0; j < individual_length; j++) {
-        p.push(randomInt(0, 1));
-      }
-    ;
-    population.push(p);
-  }
+        population.push(randomInt(0, 1));
+    }
+}
+var cells = d3.selectAll("rect")
+      .data(population)
 ;
+
+if(problem === 1)
+    MAX_HERO = individual_length;
+else if(problem === 2)
+    MAX_HERO = individual_length / 2;
+else if(problem === 3)
+    MAX_HERO = individual_length / 2;
+
 
 // Evaluate fitness levels
 for(i = 0; i < POP_SIZE; i++) { fitness[i] = fv(i); }
-
-console.log("initial population created", population, "now evolve!");
 
 for(var trial = 0; trial < iterations; trial++) {
     var pair1, pair2
@@ -40,11 +56,11 @@ for(var trial = 0; trial < iterations; trial++) {
     if(hero >= MAX_HERO) break;
 
     make_children(pair1, pair2);
+
     if(MUT_RATE > 0.0) {
         mutate(pair1.loser);
         mutate(pair2.loser);
     }
-
     fitness[pair1.loser] = fv(pair1.loser);
     fitness[pair2.loser] = fv(pair2.loser);
 }
